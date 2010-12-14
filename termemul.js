@@ -7,8 +7,11 @@
 			dirtyLines: {},
 			cursor: { x: 0, y: 0, attr: 0x0088 },
 			buffer: '',
-			cursorId: 'cursor'
+			cursorId: 'cursor',
+			onreset: null
 		};
+
+		var noop = function() {};
 
 		self.attrToClass = function(attr) {
 			return 'a' + ('0000' + (attr & 0x3FF).toString(16)).substr(-4).toUpperCase();
@@ -58,7 +61,7 @@
 				lineNo = lineNo | 0;
 				iterator(lineNo, self.renderLineAsHtml(lineNo));
 			}
-			self.dirtyLines = {}; // Reset list of dirty lines
+			self.dirtyLines = {}; // Reset list of dirty lines after rendering
 		};
 
 		self.ensureLineExists = function(lineNo) {
@@ -118,6 +121,25 @@
 
 		self.lineFeed = function() {
 			self.lowLevelMoveCursor({ y: 1 });
+		};
+
+		self.reset = function() {
+			(self.onreset || noop)();
+			self.grid = [];
+			self.dirtyLines = {};
+			self.cursor.x = 0;
+			self.cursor.y = 0;
+			self.cursor.attr = 0x0088;
+		};
+
+		self.escapeCodeESC = function(command) {
+			if (command === 'c') {
+				self.reset();
+			} else if (window.console && window.JSON) {
+				console.log('Unhandled escape code ESC ' + JSON.stringify(command));
+				// Used by `less`: ESC =, ESC >
+				// Used by `reset`: ESC H, ESC >
+			}
 		};
 
 		self.escapeCodeCSI = function(command, args) {
@@ -189,19 +211,9 @@
 				currentLength = self.buffer.length;
 				if (self.buffer.substr(0, 1) === '\u001B') {
 					var matches;
-					if (matches = self.buffer.match(/^\u001B([a-zA-Z])/)) {
+					if (matches = self.buffer.match(/^\u001B([a-zA-Z=>])/)) {
 						self.buffer = self.buffer.substr(matches[0].length);
-						if (window.console && window.JSON) {
-							console.log('Unhandled unknown escape code ESC ' + matches[1]);
-							// Used by `reset`: ESC H
-						}
-					} else if (matches = self.buffer.match(/^\u001B(=|>)/)) {
-						self.buffer = self.buffer.substr(matches[0].length);
-						if (window.console && window.JSON) {
-							console.log('Unhandled unknown escape code ESC ' + matches[1]);
-							// Used by `less`: ESC =, ESC >
-							// Used by `reset`: ESC >
-						}
+						self.escapeCodeESC(matches[1]);
 					} else if (matches = self.buffer.match(/^\u001B\[([?!]?[0-9;]*)([A-Za-z])/)) {
 						self.buffer = self.buffer.substr(matches[0].length);
 						self.escapeCodeCSI(matches[2], matches[1] ? matches[1].split(';') : []);
@@ -294,7 +306,13 @@
 			stylesheetId: 'terminal-css'
 		};
 
-		self.terminalElement.html('<div class="a0088"></div>')
+		self.softReset = function() {
+console.log('soft reset');
+			self.terminalElement.html('<div class="a0088"></div>');
+		};
+		self.term.onreset = self.softReset;
+		self.softReset();
+
 		self.terminalInputElement.keydown(function(e) {
 			//console.log('keydown... ' + e.keyCode);
 			if (e.keyCode === 8 || e.keyCode === 9 || e.keyCode === 27) {
