@@ -297,7 +297,7 @@
 		self.terminalElement.html('<div class="a0088"></div>')
 		self.terminalInputElement.keydown(function(e) {
 			//console.log('keydown... ' + e.keyCode);
-			if (e.keyCode === 8 || e.keyCode === 27) {
+			if (e.keyCode === 8 || e.keyCode === 9 || e.keyCode === 27) {
 				var ch = String.fromCharCode(e.keyCode);
 				(self.oninput || noop)(ch);
 				e.preventDefault();
