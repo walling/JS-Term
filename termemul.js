@@ -189,12 +189,20 @@
 				currentLength = self.buffer.length;
 				if (self.buffer.substr(0, 1) === '\u001B') {
 					var matches;
-					if (matches = self.buffer.match(/^\u001B(=|>)/)) {
+					if (matches = self.buffer.match(/^\u001B([a-zA-Z])/)) {
 						self.buffer = self.buffer.substr(matches[0].length);
 						if (window.console && window.JSON) {
-							console.log('Unhandled unknown escape code ESC ' + matches[1]); // Used by `less`: ESC =, ESC >
+							console.log('Unhandled unknown escape code ESC ' + matches[1]);
+							// Used by `reset`: ESC H
 						}
-					} else if (matches = self.buffer.match(/^\u001B\[(\??[0-9;]*)([A-Za-z])/)) {
+					} else if (matches = self.buffer.match(/^\u001B(=|>)/)) {
+						self.buffer = self.buffer.substr(matches[0].length);
+						if (window.console && window.JSON) {
+							console.log('Unhandled unknown escape code ESC ' + matches[1]);
+							// Used by `less`: ESC =, ESC >
+							// Used by `reset`: ESC >
+						}
+					} else if (matches = self.buffer.match(/^\u001B\[([?!]?[0-9;]*)([A-Za-z])/)) {
 						self.buffer = self.buffer.substr(matches[0].length);
 						self.escapeCodeCSI(matches[2], matches[1] ? matches[1].split(';') : []);
 					} else if (matches = self.buffer.match(/^\u001B\](.*)(?:\u0007|\u001B\\)/)) {
