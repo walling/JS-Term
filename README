@@ -1,3 +1,11 @@
-Usage: sudo node pty.js $port
+Usage: node pty.js [PORT]
 
-Visit http://localhost:$port afterwards in a WebSocket enabled browser
+Visit http://localhost:PORT/NAME afterwards in a WebSocket enabled browser.
+
+Default PORT is 8080. NAME you have to choose. Many can connect to the same NAME.
+
+
+Requirements: Node.js, Python (for proxying PTY), Bash (the terminal started).
+
+
+WARNING! Still very alpha. If the PORT is public everyone can access your stuff.
