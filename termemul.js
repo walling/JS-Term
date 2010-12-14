@@ -237,7 +237,10 @@
 			self.parseBuffer();
 		};
 
-		self.attributeToCss = function(colors, attr) {
+		self.attributeToCss = function(colors, attr, selected) {
+			if (selected) {
+				attr = (attr ^ 0x200) & ~0x100;
+			}
 			var bright  = attr & 0x100;
 			var inverse = attr & 0x200;
 			var bgIndex = (attr >> 4) & 0xF;
@@ -250,7 +253,8 @@
 				fgIndex  = swap;
 			}
 			if (fgIndex < 8 && bright) { fgIndex |= 8; }
-			return 'background: ' + colors[bgIndex] + '; color: ' + colors[fgIndex] + ';' +
+			return 'color: ' + colors[fgIndex] + ';' +
+				(bgIndex !== 16 || inverse || selected ? ' background: ' + colors[bgIndex] + ';' : '') +
 				(bright ? ' font-weight: bold;' : '');
 		};
 
@@ -262,7 +266,7 @@
 						var attr = misc << 8 | bg << 4 | fg;
 						var classSel = '.' + self.attrToClass(attr);
 						css += classSel + ' { ' + self.attributeToCss(colors, attr) + ' }\r\n';
-						css += classSel + '::selection { ' + self.attributeToCss(colors, (attr ^ 0x200) & ~0x100) + ' }\r\n';
+						css += classSel + '::selection { ' + self.attributeToCss(colors, attr, true) + ' }\r\n';
 					}
 				}
 			}
