@@ -119,7 +119,9 @@ server.on('upgrade', function(request, connection, head) {
 	});
 	connection.on('close', function() {
 		wsOpen = false;
-		ptys[path].connections--; //just to to able to gc it using some fancy algorithm.
+		if(ptys[path]) {
+			ptys[path].connections--; //just to to able to gc it using some fancy algorithm.			
+		}
 //		if (!ptys[path].connections && !closed) {
 //			pty.kill();
 //		}
