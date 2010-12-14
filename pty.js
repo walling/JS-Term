@@ -45,17 +45,10 @@ server.on('request', function(request, response) {
 		filename = './terminal.html';
 		type = 'text/html; charset=utf-8';		
 	}
-//	if (filename) {
-		(function(type) {
-			fs.readFile(filename, function(err, buffer) {
-				response.writeHead(200, { 'Content-Type': type });
-				response.end(buffer);
-			});
-		})(type);
-//	} else {
-//		response.writeHead(404, { 'Content-Type': type });
-//		response.end('File Not Found!');
-//	}
+	fs.readFile(filename, function(err, buffer) {
+		response.writeHead(200, { 'Content-Type': type });
+		response.end(buffer);
+	});
 });
 
 var ptys = {};
@@ -108,6 +101,7 @@ server.on('upgrade', function(request, connection, head) {
 	pty.on('exit', function() {
 		console.log('Connection close');
 		connection.end();
+		delete ptys[path];
 		closed = true;
 	});
 	connection.on('data', function(data) {
@@ -118,7 +112,10 @@ server.on('upgrade', function(request, connection, head) {
 				b.push(data[i]);
 			}
 		}
-		pty.stdin.write(new Buffer(b));
+		try {
+			pty.stdin.write(new Buffer(b));
+		}
+		catch(err) {}
 	});
 	connection.on('close', function() {
 		wsOpen = false;
