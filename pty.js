@@ -30,23 +30,26 @@ var server = http.createServer();
 
 server.on('request', function(request, response) {
 	var filename = null;
-	var type = 'text/plain';
+	var type = 'text/plain; charset=utf-8';
 	if (request.url === '/') {
 		filename = './terminal.html';
-		type = 'text/html';
+		type = 'text/html; charset=utf-8';
 	} else if (request.url === '/jquery-1.4.4.min.js' || request.url === '/termemul.js') {
 		filename = '.' + request.url;
-		type = 'text/javascript';
+		type = 'text/javascript; charset=utf-8';
+	} else if (request.url === '/favicon.ico') {
+		filename = './favicon.ico';
+		type = 'image/vnd.microsoft.icon';
 	}
 	if (filename) {
 		(function(type) {
 			fs.readFile(filename, function(err, buffer) {
-				response.writeHead(200, { 'Content-Type': type + '; charset=utf-8' });
+				response.writeHead(200, { 'Content-Type': type });
 				response.end(buffer);
 			});
 		})(type);
 	} else {
-		response.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
+		response.writeHead(404, { 'Content-Type': type });
 		response.end('File Not Found!');
 	}
 });
