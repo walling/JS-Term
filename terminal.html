@@ -49,6 +49,10 @@
 						ws.send(data);
 					};
 				};
+				ws.onclose = function() {
+					term.oninput = null;
+					term.write('\r\n\n\u001B[0;1mCONNECTION CLOSED. \u001B[0m');
+				};
 				ws.onmessage = function(e) {
 					//console.log('recieve ' + JSON.stringify(e.data));
 					term.write(e.data);
