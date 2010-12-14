@@ -45,12 +45,12 @@
 				var ws = new WebSocket('ws://' + location.host);
 				ws.onopen = function() {
 					term.oninput = function(data) {
-						console.log('send ' + JSON.stringify(data));
+						//console.log('send ' + JSON.stringify(data));
 						ws.send(data);
 					};
 				};
 				ws.onmessage = function(e) {
-					console.log('recieve ' + JSON.stringify(e.data));
+					//console.log('recieve ' + JSON.stringify(e.data));
 					term.write(e.data);
 				};
 
