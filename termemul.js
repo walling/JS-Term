@@ -346,11 +346,14 @@
 		self.softReset();
 
 		self.terminalInputElement.keydown(function(e) {
-			var shft = e.shiftKey;
-			var ctrl = e.ctrlKey;
-			var meta = e.metaKey;
-			var mods = shft || ctrl || meta;
-			//console.log('keydown... ' + e.keyCode, shft, ctrl, meta);
+			var shift = e.shiftKey;
+			var ctrl  = e.ctrlKey;
+			var meta  = e.metaKey;
+			var mods   = shift || ctrl || meta;
+			var onlyShift = shift && !( ctrl || meta);
+			var onlyCtrl  = ctrl  && !(shift || meta);
+			var onlyMeta  = meta  && !(shift || ctrl);
+			//console.log('keydown... ' + e.keyCode, shift, ctrl, meta);
 			if (!mods && (e.keyCode === 8 || e.keyCode === 9 || e.keyCode === 27)) {
 				var ch = String.fromCharCode(e.keyCode);
 				(self.oninput || noop)(ch);
@@ -372,9 +375,42 @@
 				(self.oninput || noop)('\u001B[B');
 				e.preventDefault();
 				return false;
-			} else if (e.ctrlKey && (e.keyCode === 67 || e.keyCode === 68)) {
+			} else if (onlyCtrl && (e.keyCode === 65 || e.keyCode === 90)) { // Ctrl + A-Z
 				var ch = String.fromCharCode(e.keyCode - 64);
 				(self.oninput || noop)(ch);
+				e.preventDefault();
+				return false;
+			} else if (mods && e.keyCode === 90) { // Panic debug button: Try to force stop a program
+				(self.oninput || noop)('\u001A');
+				(self.oninput || noop)('\u001A');
+				(self.oninput || noop)('\u001A');
+				(self.oninput || noop)('æ');
+				(self.oninput || noop)('\u0008\u0008');
+				(self.oninput || noop)('æ');
+				(self.oninput || noop)('\u0008\u0008');
+				(self.oninput || noop)('æ');
+				(self.oninput || noop)('\u0008\u0008');
+				(self.oninput || noop)('æ');
+				(self.oninput || noop)('\u0008\u0008');
+				(self.oninput || noop)('æ');
+				(self.oninput || noop)('\u0008\u0008');
+				(self.oninput || noop)('æ');
+				(self.oninput || noop)('\u0008\u0008');
+				(self.oninput || noop)('æ');
+				(self.oninput || noop)('\u0008\u0008');
+				(self.oninput || noop)('\r');
+				(self.oninput || noop)('reset\r');
+				(self.oninput || noop)('æ');
+				(self.oninput || noop)('\u0008\u0008');
+				(self.oninput || noop)('æ');
+				(self.oninput || noop)('\u0008\u0008');
+				(self.oninput || noop)('æ');
+				(self.oninput || noop)('\u0008\u0008');
+				(self.oninput || noop)('æ');
+				(self.oninput || noop)('\u0008\u0008');
+				(self.oninput || noop)('æ');
+				(self.oninput || noop)('\u0008\u0008');
+				(self.oninput || noop)('jobs\r');
 				e.preventDefault();
 				return false;
 			} else if (window.console) {
