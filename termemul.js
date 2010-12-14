@@ -511,7 +511,7 @@
 		};
 
 		self.ensureLineExists = function(lineNo) {
-			var missingLines = lineNo - self.numberOfLines() + 1;
+			var missingLines = lineNo - self.numberOfLines() + 2;
 			if (missingLines > 0) {
 				var html = '';
 				for (var i = 0; i < missingLines; i++) {
