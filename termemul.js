@@ -487,9 +487,7 @@
 		self.theme(self.themes['Linux Terminal']);
 
 		self.scrollSnap = function() {
-			var lines  = self.numberOfLines();
-			var height = self.height();
-			var characterHeight = (height / lines) || 1;
+			var characterHeight = self.characterHeight();
 			var position = $window.scrollTop();
 			var snapPosition = Math.floor(Math.floor(position / characterHeight) * characterHeight);
 			if (position !== snapPosition) {
@@ -506,9 +504,14 @@
 		self.enableScrollSnapping();
 
 		self.scrollToBottom = function() {
-			$window.scrollTop(self.height());
-			self.scrollSnap();
+			var firstLine = self.numberOfLines() - 1 - self.rows();
+			if (firstLine < 0) {
+				firstLine = 0;
+			}
+			$window.scrollTop(firstLine * self.characterHeight());
+			return false;
 		};
+		$window.resize(self.scrollToBottom);
 
 		self.startCursorBlinking = function() {
 			self.stopCursorBlinking();
@@ -531,8 +534,43 @@
 			return self.terminalElement.find('> *').size() || 1
 		};
 
+		self.characterWidth = function() {
+			var ch = self.terminalElement.find('> * > *');
+			return ch.innerWidth() || 1; // TODO: Is this really stable crossbrowser?
+		};
+
+		self.characterHeight = function() {
+			var line = self.terminalElement.find('> *');
+			return line.innerHeight() || 1; // TODO: Is this really stable crossbrowser?
+
+			/* OLD WAY TO DO IT (is it slower?)
+			var lines  = self.numberOfLines();
+			var height = self.height();
+			return (height / lines) || 1;
+			*/
+		};
+
+		self.width = function() {
+			return self.terminalElement.innerWidth();
+		};
+
 		self.height = function() {
-			return self.terminalElement.height();
+			return self.terminalElement.innerHeight();
+		};
+
+		self.columns = function() {
+			return Math.floor($window.width()  / self.characterWidth());
+		};
+
+		self.rows = function() {
+			return Math.floor($window.height() / self.characterHeight());
+		};
+
+		self.size = function() {
+			return {
+				x: self.columns(),
+				y: self.rows()
+			};
 		};
 
 		self.ensureLineExists = function(lineNo) {
