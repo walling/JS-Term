@@ -71,7 +71,6 @@ server.on('upgrade', function(request, connection, head) {
 		return;
 	}
 	
-	console.log('Connection open');
 	connection.write(handshake.join('\r\n') + '\r\n\r\n' + token, 'binary');
 	
 	var path = request.url;
@@ -82,6 +81,7 @@ server.on('upgrade', function(request, connection, head) {
 	};
 	
 	ptys[path].connections++;
+	console.log('Connection open on <' + request.url + '> (' + ptys[path].connections + ' connected)');
 	
 	var pty = ptys[path].term;	
 	var closed = false;
@@ -99,7 +99,6 @@ server.on('upgrade', function(request, connection, head) {
 		catch(err) {}
 	});
 	pty.on('exit', function() {
-		console.log('Connection close');
 		connection.end();
 		delete ptys[path];
 		closed = true;
@@ -122,6 +121,7 @@ server.on('upgrade', function(request, connection, head) {
 		if(ptys[path]) {
 			ptys[path].connections--; //just to to able to gc it using some fancy algorithm.			
 		}
+		console.log('Connection close ' + request.url);
 //		if (!ptys[path].connections && !closed) {
 //			pty.kill();
 //		}
