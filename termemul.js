@@ -327,6 +327,11 @@
 				(self.oninput || noop)(ch);
 				e.preventDefault();
 				return false;
+			} else if (e.ctrlKey && (e.keyCode === 67 || e.keyCode === 68)) {
+				var ch = String.fromCharCode(e.keyCode - 64);
+				(self.oninput || noop)(ch);
+				e.preventDefault();
+				return false;
 			} else if (window.console) {
 				//console.log('Unhandled keydown ' + e.keyCode);
 			}
