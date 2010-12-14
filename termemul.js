@@ -211,15 +211,23 @@
 				currentLength = self.buffer.length;
 				if (self.buffer.substr(0, 1) === '\u001B') {
 					var matches;
-					if (matches = self.buffer.match(/^\u001B([a-zA-Z=>])/)) {
+					if (matches = self.buffer.match(/^\u001B([0-9a-zA-Z=>])/)) {
 						self.buffer = self.buffer.substr(matches[0].length);
 						self.escapeCodeESC(matches[1]);
-					} else if (matches = self.buffer.match(/^\u001B\[([?!]?[0-9;]*)([A-Za-z])/)) {
+					} else if (matches = self.buffer.match(/^(?:\u001B\[|\u009B)([ -?]*)([@-~])/)) {
 						self.buffer = self.buffer.substr(matches[0].length);
 						self.escapeCodeCSI(matches[2], matches[1] ? matches[1].split(';') : []);
 					} else if (matches = self.buffer.match(/^\u001B\](.*)(?:\u0007|\u001B\\)/)) {
 						self.buffer = self.buffer.substr(matches[0].length);
 						self.escapeCodeOSC(matches[1]);
+					} else if (self.buffer.match(/[^\u0001-~\u009B]/)) {
+						// fail-safe thingy... if no escape codes can be parsed and buffer
+						// contains characters outside ASCII, then something is wrong.
+						// Escape codes use characters within ASCII.
+						if (window.console && window.JSON) {
+							console.log('Removing ESC character, because of bad parse: ' + JSON.stringify(self.buffer));
+						}
+						self.buffer = self.buffer.substr(1); // <-- KIND OF HACK :)
 					} else if (window.console && window.JSON) {
 						console.log('Unhandled escape codes ' + JSON.stringify(self.buffer));
 					}
