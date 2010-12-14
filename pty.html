@@ -1,0 +1,38 @@
+<html>
+	<head>
+		<script>
+			var ws = new WebSocket('ws://' + location.host);
+			
+			ws.onopen = function() {
+				var inp = document.getElementsByTagName('input')[0];
+
+				document.body.onkeydown = function() {
+					inp.focus();					
+				}
+				
+				var pre = document.getElementsByTagName('pre')[0];					
+				
+				inp.onkeydown = function(e) {
+					if(e.keyCode === 13) {
+						var i = pre.innerHTML.lastIndexOf('#');
+						ws.send(inp.value + '\n');
+						inp.value = '';
+						pre.innerHTML = pre.innerHTML.substring(0, i+1) + ' ' + inp.value;
+					}
+				}				
+				inp.onkeyup = function(e) {
+					var i = pre.innerHTML.lastIndexOf('#');
+					pre.innerHTML = pre.innerHTML.substring(0, i+1) + ' ' + inp.value;
+				};
+				inp.focus();
+			};
+			ws.onmessage = function(evt) {
+				document.getElementsByTagName('pre')[0].innerHTML += evt.data;
+			}
+		</script>
+	</head>
+	<body>
+		<pre></pre>
+		<input style='position:absolute; left:-500px;'>
+	</body>
+</html>
