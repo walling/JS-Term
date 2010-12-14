@@ -71,9 +71,11 @@ server.on('upgrade', function(request, connection, head) {
 		return;
 	}
 	
+	console.log('Connection open');
 	connection.write(handshake.join('\r\n') + '\r\n\r\n' + token, 'binary');
 	
 	var pty = spawn('python', ['-c', 'import pty;pty.spawn(["bash"])']);
+	var closed = false;
 
 	pty.stdout.on('data', function(data) {
 		connection.write('\u0000', 'binary');
@@ -81,7 +83,9 @@ server.on('upgrade', function(request, connection, head) {
 		connection.write('\uffff', 'binary');
 	});
 	pty.on('exit', function() {
-		console.log(4) //not ok
+		console.log('Connection close');
+		connection.end();
+		closed = true;
 	});
 	connection.on('data', function(data) {
 		var b = [];
@@ -94,7 +98,9 @@ server.on('upgrade', function(request, connection, head) {
 		pty.stdin.write(new Buffer(b));
 	});
 	connection.on('close', function() {
-		pty.kill();
+		if (!closed) {
+			pty.kill();
+		}
 	});
 });
 
