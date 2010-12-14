@@ -5,7 +5,7 @@
 		var self = {
 			grid: [],
 			dirtyLines: {},
-			cursor: { x: 0, y: 0, attr: 0x0088 },
+			cursor: { x: 0, y: 0, attr: 0x0088, visible: true },
 			buffer: '',
 			cursorId: 'cursor',
 			onreset: null
@@ -43,7 +43,7 @@
 				var ach = line[i] || [self.cursor.attr, ' '];
 				var a  = ach[0];
 				var ch = ach[1];
-				var isCursor = (lineNo === self.cursor.y && i === self.cursor.x);
+				var isCursor = (lineNo === self.cursor.y && i === self.cursor.x && self.cursor.visible);
 				if (isCursor) {
 					a ^= 0x200;
 				}
@@ -140,11 +140,14 @@
 			self.cursor.x = 0;
 			self.cursor.y = 0;
 			self.cursor.attr = 0x0088;
+			self.cursor.visible = true;
 		};
 
 		self.escapeCodeESC = function(command) {
 			if (command === 'c') {
 				self.reset();
+			} else if (command === '(B') {
+				// Do not handle and do not report about it. `top` on Linux outputs it.
 			} else if (window.console && window.JSON) {
 				console.log('Unhandled escape code ESC ' + JSON.stringify(command));
 				// Used by `less`: ESC =, ESC >
@@ -191,6 +194,20 @@
 					var line = self.grid[self.cursor.y];
 					self.grid[self.cursor.y] = line.slice(0, self.cursor.x).concat(line.slice(self.cursor.x + arg));
 					self.dirtyLines[self.cursor.y] = true;
+				}
+			} else if (command === 'h') {
+				var arg = args[0];
+				if (arg === '?25') {
+					self.cursor.visible = true;
+				} else if (window.console && window.JSON) {
+					console.log('Unknown argument for CSI "h": ' + JSON.stringify(arg));
+				}
+			} else if (command === 'l') {
+				var arg = args[0];
+				if (arg === '?25') {
+					self.cursor.visible = false;
+				} else if (window.console && window.JSON) {
+					console.log('Unknown argument for CSI "l": ' + JSON.stringify(arg));
 				}
 			} else if (command === 'm') {
 				for (var i = 0; i < args.length; i++) {
