@@ -29,10 +29,26 @@ function wsHandshake(request, head) {
 var server = http.createServer();
 
 server.on('request', function(request, response) {
-	fs.readFile('./pty.html', function(err, buffer) {
-		response.writeHead(200);
-		response.end(buffer);
-	});
+	var filename = null;
+	var type = 'text/plain';
+	if (request.url === '/') {
+		filename = './terminal.html';
+		type = 'text/html';
+	} else if (request.url === '/jquery-1.4.4.min.js' || request.url === '/termemul.js') {
+		filename = '.' + request.url;
+		type = 'text/javascript';
+	}
+	if (filename) {
+		(function(type) {
+			fs.readFile(filename, function(err, buffer) {
+				response.writeHead(200, { 'Content-Type': type + '; charset=utf-8' });
+				response.end(buffer);
+			});
+		})(type);
+	} else {
+		response.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
+		response.end('File Not Found!');
+	}
 });
 server.on('upgrade', function(request, connection, head) {
 	connection.setTimeout(0);

@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset='utf-8'>
+		<title>Terminal</title>
+		<style>
+			html {
+				overflow-y: scroll;
+			}
+			html, body {
+				padding: 0;
+				margin: 0;
+				font-family: monospace;
+			}
+			body {
+				padding-bottom: 1.3em;
+			}
+			#terminal {
+				white-space: pre;
+				overflow: hidden;
+				/*max-height: 704px;*/ /* if you need to disable scrollbar, ie. terminal codes does this inside Nano, Vim, Emacs, etc. */
+			}
+			#terminal > div {
+				height: 1.3em;
+				line-height: 1.3em;
+			}
+		</style>
+		<script src='jquery-1.4.4.min.js'></script>
+		<script src='termemul.js'></script>
+		<script>
+			$(function() {
+				var term = termemul.JQueryTerminal('#terminal');
+				term.theme(term.themes['Tango']);
+				term.write('Welcome to the rabbit hole…\r\n\r\n');
+
+				// Colors test case
+				term.write('\r\n 0.   \u001b[30m FG\u001b[0m\u001b[30;1m FG\u001b[0m\u001b[30;2m FG \u001b[0m   \u001b[40m BG\u001b[0m\u001b[40;1m BG\u001b[0m\u001b[40;2m BG \u001b[0m   \u001b[30;7m FG\u001b[0m\u001b[30;7;1m FG\u001b[0m\u001b[30;7;2m FG \u001b[0m   \u001b[40;7m BG\u001b[0m\u001b[40;7;1m BG\u001b[0m\u001b[40;7;2m BG \u001b[0m \r\n 1.   \u001b[31m FG\u001b[0m\u001b[31;1m FG\u001b[0m\u001b[31;2m FG \u001b[0m   \u001b[41m BG\u001b[0m\u001b[41;1m BG\u001b[0m\u001b[41;2m BG \u001b[0m   \u001b[31;7m FG\u001b[0m\u001b[31;7;1m FG\u001b[0m\u001b[31;7;2m FG \u001b[0m   \u001b[41;7m BG\u001b[0m\u001b[41;7;1m BG\u001b[0m\u001b[41;7;2m BG \u001b[0m \r\n 2.   \u001b[32m FG\u001b[0m\u001b[32;1m FG\u001b[0m\u001b[32;2m FG \u001b[0m   \u001b[42m BG\u001b[0m\u001b[42;1m BG\u001b[0m\u001b[42;2m BG \u001b[0m   \u001b[32;7m FG\u001b[0m\u001b[32;7;1m FG\u001b[0m\u001b[32;7;2m FG \u001b[0m   \u001b[42;7m BG\u001b[0m\u001b[42;7;1m BG\u001b[0m\u001b[42;7;2m BG \u001b[0m \r\n 3.   \u001b[33m FG\u001b[0m\u001b[33;1m FG\u001b[0m\u001b[33;2m FG \u001b[0m   \u001b[43m BG\u001b[0m\u001b[43;1m BG\u001b[0m\u001b[43;2m BG \u001b[0m   \u001b[33;7m FG\u001b[0m\u001b[33;7;1m FG\u001b[0m\u001b[33;7;2m FG \u001b[0m   \u001b[43;7m BG\u001b[0m\u001b[43;7;1m BG\u001b[0m\u001b[43;7;2m BG \u001b[0m \r\n 4.   \u001b[34m FG\u001b[0m\u001b[34;1m FG\u001b[0m\u001b[34;2m FG \u001b[0m   \u001b[44m BG\u001b[0m\u001b[44;1m BG\u001b[0m\u001b[44;2m BG \u001b[0m   \u001b[34;7m FG\u001b[0m\u001b[34;7;1m FG\u001b[0m\u001b[34;7;2m FG \u001b[0m   \u001b[44;7m BG\u001b[0m\u001b[44;7;1m BG\u001b[0m\u001b[44;7;2m BG \u001b[0m \r\n 5.   \u001b[35m FG\u001b[0m\u001b[35;1m FG\u001b[0m\u001b[35;2m FG \u001b[0m   \u001b[45m BG\u001b[0m\u001b[45;1m BG\u001b[0m\u001b[45;2m BG \u001b[0m   \u001b[35;7m FG\u001b[0m\u001b[35;7;1m FG\u001b[0m\u001b[35;7;2m FG \u001b[0m   \u001b[45;7m BG\u001b[0m\u001b[45;7;1m BG\u001b[0m\u001b[45;7;2m BG \u001b[0m \r\n 6.   \u001b[36m FG\u001b[0m\u001b[36;1m FG\u001b[0m\u001b[36;2m FG \u001b[0m   \u001b[46m BG\u001b[0m\u001b[46;1m BG\u001b[0m\u001b[46;2m BG \u001b[0m   \u001b[36;7m FG\u001b[0m\u001b[36;7;1m FG\u001b[0m\u001b[36;7;2m FG \u001b[0m   \u001b[46;7m BG\u001b[0m\u001b[46;7;1m BG\u001b[0m\u001b[46;7;2m BG \u001b[0m \r\n 7.   \u001b[37m FG\u001b[0m\u001b[37;1m FG\u001b[0m\u001b[37;2m FG \u001b[0m   \u001b[47m BG\u001b[0m\u001b[47;1m BG\u001b[0m\u001b[47;2m BG \u001b[0m   \u001b[37;7m FG\u001b[0m\u001b[37;7;1m FG\u001b[0m\u001b[37;7;2m FG \u001b[0m   \u001b[47;7m BG\u001b[0m\u001b[47;7;1m BG\u001b[0m\u001b[47;7;2m BG \u001b[0m \r\n 8.   \u001b[39m FG\u001b[0m\u001b[39;1m FG\u001b[0m\u001b[39;2m FG \u001b[0m   \u001b[49m BG\u001b[0m\u001b[49;1m BG\u001b[0m\u001b[49;2m BG \u001b[0m   \u001b[39;7m FG\u001b[0m\u001b[39;7;1m FG\u001b[0m\u001b[39;7;2m FG \u001b[0m   \u001b[49;7m BG\u001b[0m\u001b[49;7;1m BG\u001b[0m\u001b[49;7;2m BG \u001b[0m \r\n\r\n');
+
+				// Simple echo terminal
+			/*
+				term.write('\r\n> ');
+				term.oninput = function(data) {
+					term.write(data.replace('\r', '\r\n> ').replace('\b', '\b \b'));
+				};
+			*/
+
+				// Online terminal
+				var ws = new WebSocket('ws://' + location.host);
+				ws.onopen = function() {
+					term.oninput = function(data) {
+						console.log('send ' + JSON.stringify(data));
+						ws.send(data);
+					};
+				};
+				ws.onmessage = function(e) {
+					console.log('recieve ' + JSON.stringify(e.data));
+					term.write(e.data);
+				};
+
+			});
+		</script>
+	</head>
+	<body class='a0088'>
+		<div id='terminal'></div>
+		<!-- maybe use textarea for keyboard input: paste text, possible to use Ctrl+Alt+Shift+U in Linux, and other stuff?? ... -->
+	</body>
+</html>
