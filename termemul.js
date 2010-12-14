@@ -341,7 +341,7 @@
 /*
 		function enableScrollSnapping() {
 			function snap() {
-				var lines  = $terminal.find(':parent').size() || 1;
+				var lines  = $terminal.find('> *').size() || 1;
 				var height = $terminal.height();
 				var characterHeight = (height / lines) || 1;
 				var position = $window.scrollTop();
@@ -376,7 +376,7 @@
 		};
 
 		self.numberOfLines = function() {
-			return self.terminalElement.find('> :parent').size() || 1
+			return self.terminalElement.find('> *').size() || 1
 		};
 
 		self.ensureLineExists = function(lineNo) {
