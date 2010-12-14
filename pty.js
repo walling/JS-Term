@@ -41,18 +41,25 @@ server.on('request', function(request, response) {
 		filename = './favicon.ico';
 		type = 'image/vnd.microsoft.icon';
 	}
-	if (filename) {
+	if(!filename) {
+		filename = './terminal.html';
+		type = 'text/html; charset=utf-8';		
+	}
+//	if (filename) {
 		(function(type) {
 			fs.readFile(filename, function(err, buffer) {
 				response.writeHead(200, { 'Content-Type': type });
 				response.end(buffer);
 			});
 		})(type);
-	} else {
-		response.writeHead(404, { 'Content-Type': type });
-		response.end('File Not Found!');
-	}
+//	} else {
+//		response.writeHead(404, { 'Content-Type': type });
+//		response.end('File Not Found!');
+//	}
 });
+
+var ptys = {};
+
 server.on('upgrade', function(request, connection, head) {
 	connection.setTimeout(0);
 	connection.setNoDelay(true);
@@ -74,13 +81,29 @@ server.on('upgrade', function(request, connection, head) {
 	console.log('Connection open');
 	connection.write(handshake.join('\r\n') + '\r\n\r\n' + token, 'binary');
 	
-	var pty = spawn('python', ['-c', 'import pty;pty.spawn(["bash"])']);
+	var path = request.url;
+	
+	ptys[path] = ptys[path] || {
+		term: spawn('python', ['-c', 'import pty;pty.spawn(["bash"])']),
+		connections:0
+	};
+	
+	ptys[path].connections++;
+	
+	var pty = ptys[path].term;	
 	var closed = false;
+	var wsOpen = true;
 
 	pty.stdout.on('data', function(data) {
-		connection.write('\u0000', 'binary');
-		connection.write(data);
-		connection.write('\uffff', 'binary');
+		if(!wsOpen) {
+			return;
+		}
+		try {
+			connection.write('\u0000', 'binary');
+			connection.write(data);
+			connection.write('\uffff', 'binary');			
+		}
+		catch(err) {}
 	});
 	pty.on('exit', function() {
 		console.log('Connection close');
@@ -98,10 +121,17 @@ server.on('upgrade', function(request, connection, head) {
 		pty.stdin.write(new Buffer(b));
 	});
 	connection.on('close', function() {
-		if (!closed) {
-			pty.kill();
-		}
+		wsOpen = false;
+		ptys[path].connections--; //just to to able to gc it using some fancy algorithm.
+//		if (!ptys[path].connections && !closed) {
+//			pty.kill();
+//		}
 	});
 });
 
 server.listen(parseInt(process.argv[2] || '8080', 10));
+
+
+process.on('uncaughtException', function(err) {
+	console.log(err.stack);
+});
