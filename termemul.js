@@ -244,7 +244,7 @@
 				currentLength = self.buffer.length;
 				if (self.buffer.substr(0, 1) === '\u001B') {
 					var matches;
-					if (matches = self.buffer.match(/^\u001B([0-9a-zA-Z=>])/)) {
+					if (matches = self.buffer.match(/^\u001B([()#][0-9A-Za-z]|[0-9A-Za-z<>=])/)) {
 						self.buffer = self.buffer.substr(matches[0].length);
 						self.escapeCodeESC(matches[1]);
 					} else if (matches = self.buffer.match(/^(?:\u001B\[|\u009B)([ -?]*)([@-~])/)) {
