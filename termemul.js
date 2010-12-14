@@ -8,7 +8,9 @@
 			cursor: { x: 0, y: 0, attr: 0x0088, visible: true },
 			buffer: '',
 			cursorId: 'cursor',
-			onreset: null
+			onreset: null,
+			columns: null,
+			rows: null
 		};
 
 		var noop = function() {};
@@ -71,6 +73,10 @@
 			}
 		};
 
+		self.windowFirstLine = function() {
+			return Math.max(0, self.grid.length - (self.rows || noop)() || 1);
+		};
+
 		self.emptyLineArray = function(maxSize) {
 			maxSize = maxSize || 512;
 
@@ -100,10 +106,14 @@
 			self.dirtyLines[self.cursor.y] = true;
 			if (newPosition.x !== undefined) {
 				self.cursor.x = (newPosition.x < 0) ? 0 : newPosition.x;
+				var cols = (self.columns || noop)() || 500;
+				if (self.cursor.x > cols - 1) {
+					self.cursor.x = cols - 1;
+				}
 				// TODO: Check that cursor is not going out of boundaries (x too large).
 			}
 			if (newPosition.y !== undefined) {
-				self.cursor.y = (newPosition.y < 0) ? 0 : newPosition.y;
+				self.cursor.y = (newPosition.y < 0) ? 0 : newPosition.y; // TODO: Maybe the smallest y-position if windowFirstLine ?
 			}
 			self.dirtyLines[self.cursor.y] = true;
 			self.ensureLineExists(self.cursor.y);
@@ -172,6 +182,26 @@
 				if (arg <   0) { arg =   0; }
 				if (arg > 500) { arg = 500; } // TODO: Use terminal max width
 				self.lowLevelSetCursor({ x: arg });
+			} else if (command === 'H') {
+				var y = (parseInt(args[0] || '1', 10) || 1) - 1;
+				var x = (parseInt(args[1] || '1', 10) || 1) - 1;
+				self.lowLevelSetCursor({ x: x, y: y + self.windowFirstLine() });
+			} else if (command === 'J') {
+				var arg = parseInt(args[0] || '0', 10) || 0;
+				var cols = (self.columns || noop)() || self.cursor.x + 1;
+				var firstLine  = self.windowFirstLine();
+				var lastLine   = firstLine + ((self.rows || noop)() || 1) - 1;
+				var cursorLine = self.cursor.y;
+				if (arg === 1) {
+					firstLine = cursorLine;
+				} else if (arg !== 2) {
+					lastLine = cursorLine;
+				}
+				var emptyLine = self.emptyLineArray(cols);
+				for (var y = firstLine; y <= lastLine; y++) {
+					self.grid[y] = emptyLine.slice(0);
+					self.dirtyLines[y] = true;
+				}
 			} else if (command === 'K') {
 				var arg = parseInt(args[0] || '0', 10) || 0;
 				var line = self.grid[self.cursor.y];
@@ -561,10 +591,12 @@
 		self.columns = function() {
 			return Math.floor($window.width()  / self.characterWidth());
 		};
+		self.term.columns = self.columns;
 
 		self.rows = function() {
 			return Math.floor($window.height() / self.characterHeight());
 		};
+		self.term.rows = self.rows;
 
 		self.size = function() {
 			return {
