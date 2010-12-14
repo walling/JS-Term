@@ -143,8 +143,19 @@
 		};
 
 		self.escapeCodeCSI = function(command, args) {
-			if (command === 'K') {
-				var arg = parseInt(args[0] || '0', 10);
+			if (command >= 'A' && command <= 'D') {
+				var arg = parseInt(args[0] || '1', 10) || 1;
+				if (arg <   0) { arg =   0; }
+				if (arg > 500) { arg = 500; }
+				var directions = {
+					'A': { y: -arg },
+					'B': { y:  arg },
+					'C': { x:  arg },
+					'D': { x: -arg }
+				};
+				self.lowLevelMoveCursor(directions[command]);
+			} else if (command === 'K') {
+				var arg = parseInt(args[0] || '0', 10) || 0;
 				if (arg === 1) {
 					if (window.console && window.JSON) {
 						console.log('Unimplemented argument for CSI "K": ' + arg);
@@ -159,6 +170,15 @@
 					self.grid[self.cursor.y] = self.grid[self.cursor.y].slice(0, self.cursor.x);
 				}
 				self.dirtyLines[self.cursor.y] = true;
+			} else if (command === 'P') {
+				var arg = parseInt(args[0] || '1', 10) || 1;
+				if (arg <   0) { arg =   0; }
+				if (arg > 500) { arg = 500; }
+				if (arg > 0) {
+					var line = self.grid[self.cursor.y];
+					self.grid[self.cursor.y] = line.slice(0, self.cursor.x).concat(line.slice(self.cursor.x + arg));
+					self.dirtyLines[self.cursor.y] = true;
+				}
 			} else if (command === 'm') {
 				for (var i = 0; i < args.length; i++) {
 					var arg = parseInt(args[i], 10);
@@ -321,10 +341,30 @@
 		self.softReset();
 
 		self.terminalInputElement.keydown(function(e) {
-			//console.log('keydown... ' + e.keyCode);
-			if (e.keyCode === 8 || e.keyCode === 9 || e.keyCode === 27) {
+			var shft = e.shiftKey;
+			var ctrl = e.ctrlKey;
+			var meta = e.metaKey;
+			var mods = shft || ctrl || meta;
+			//console.log('keydown... ' + e.keyCode, shft, ctrl, meta);
+			if (!mods && (e.keyCode === 8 || e.keyCode === 9 || e.keyCode === 27)) {
 				var ch = String.fromCharCode(e.keyCode);
 				(self.oninput || noop)(ch);
+				e.preventDefault();
+				return false;
+			} else if (!mods && e.keyCode === 37) { // Left arrow
+				(self.oninput || noop)('\u001B[D');
+				e.preventDefault();
+				return false;
+			} else if (!mods && e.keyCode === 38) { // Up arrow
+				(self.oninput || noop)('\u001B[A');
+				e.preventDefault();
+				return false;
+			} else if (!mods && e.keyCode === 39) { // Right arrow
+				(self.oninput || noop)('\u001B[C');
+				e.preventDefault();
+				return false;
+			} else if (!mods && e.keyCode === 40) { // Down arrow
+				(self.oninput || noop)('\u001B[B');
 				e.preventDefault();
 				return false;
 			} else if (e.ctrlKey && (e.keyCode === 67 || e.keyCode === 68)) {
