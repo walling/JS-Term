@@ -307,7 +307,6 @@
 		};
 
 		self.softReset = function() {
-console.log('soft reset');
 			self.terminalElement.html('<div class="a0088"></div>');
 		};
 		self.term.onreset = self.softReset;
