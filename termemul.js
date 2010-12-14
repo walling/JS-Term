@@ -182,7 +182,7 @@
 				if (arg <   0) { arg =   0; }
 				if (arg > 500) { arg = 500; } // TODO: Use terminal max width
 				self.lowLevelSetCursor({ x: arg });
-			} else if (command === 'H') {
+			} else if (command === 'H' || command === 'f') {
 				var y = (parseInt(args[0] || '1', 10) || 1) - 1;
 				var x = (parseInt(args[1] || '1', 10) || 1) - 1;
 				self.lowLevelSetCursor({ x: x, y: y + self.windowFirstLine() });
