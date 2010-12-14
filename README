@@ -1,0 +1,3 @@
+Usage: sudo node pty.js $port
+
+Visit http://localhost:$port afterwards in a WebSocket enabled browser
