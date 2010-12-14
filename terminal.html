@@ -43,7 +43,7 @@
 			*/
 
 				// Online terminal
-				var ws = new WebSocket('ws://' + location.host);
+				var ws = new WebSocket('ws://' + location.host + location.pathname);
 				ws.onopen = function() {
 					term.oninput = function(data) {
 						//console.log('send ' + JSON.stringify(data));
