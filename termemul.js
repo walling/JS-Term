@@ -11,7 +11,7 @@
 		};
 
 		self.attrToClass = function(attr) {
-			return 'a' + ('0000' + attr.toString(16)).substr(-4).toUpperCase();
+			return 'a' + ('0000' + (attr & 0x3FF).toString(16)).substr(-4).toUpperCase();
 		};
 
 		self.attrFromClass = function(className) {
@@ -45,8 +45,9 @@
 					a ^= 0x200;
 				}
 				var cursor = (isCursor ? ' id="' + self.cursorId + '"' : '');
+				var style = (a & 0x400 ? ' style="text-decoration: underline;"' : '');
 
-				html += '<span class="' + self.attrToClass(a) + '"' + cursor + '>' + ch + '</span>';
+				html += '<span class="' + self.attrToClass(a) + '"' + cursor + style + '>' + ch + '</span>';
 			}
 
 			return html;
@@ -120,7 +121,23 @@
 		};
 
 		self.escapeCodeCSI = function(command, args) {
-			if (command === 'm') {
+			if (command === 'K') {
+				var arg = parseInt(args[0] || '0', 10);
+				if (arg === 1) {
+					if (window.console && window.JSON) {
+						console.log('Unimplemented argument for CSI "K": ' + arg);
+					}
+					//self.grid[self.cursor.y] = self.grid[self.cursor.y].slice(self.cursor.x + 1);
+				} else if (arg === 2) {
+					self.grid[self.cursor.y] = [];
+				} else {
+					if (arg !== 0 && window.console && window.JSON) {
+						console.log('Unknown argument for CSI "K": ' + arg);
+					}
+					self.grid[self.cursor.y] = self.grid[self.cursor.y].slice(0, self.cursor.x);
+				}
+				self.dirtyLines[self.cursor.y] = true;
+			} else if (command === 'm') {
 				for (var i = 0; i < args.length; i++) {
 					var arg = parseInt(args[i], 10);
 					if (arg === 0) {
@@ -129,8 +146,14 @@
 						self.cursor.attr |= 0x0100;
 					} else if (arg === 2) {
 						self.cursor.attr &= ~0x0100;
+					} else if (arg === 4) {
+						self.cursor.attr |= 0x0400;
 					} else if (arg === 7) {
-						self.cursor.attr ^= 0x0200;
+						self.cursor.attr |= 0x0200;
+					} else if (arg === 24) {
+						self.cursor.attr &= ~0x0400;
+					} else if (arg === 27) {
+						self.cursor.attr &= ~0x0200;
 					} else if (arg >= 30 && arg <= 37) {
 						self.cursor.attr &= ~0x000F;
 						self.cursor.attr |= arg - 30;
@@ -166,7 +189,12 @@
 				currentLength = self.buffer.length;
 				if (self.buffer.substr(0, 1) === '\u001B') {
 					var matches;
-					if (matches = self.buffer.match(/^\u001B\[([0-9;]*)([A-Za-z])/)) {
+					if (matches = self.buffer.match(/^\u001B(=|>)/)) {
+						self.buffer = self.buffer.substr(matches[0].length);
+						if (window.console && window.JSON) {
+							console.log('Unhandled unknown escape code ESC ' + matches[1]); // Used by `less`: ESC =, ESC >
+						}
+					} else if (matches = self.buffer.match(/^\u001B\[(\??[0-9;]*)([A-Za-z])/)) {
 						self.buffer = self.buffer.substr(matches[0].length);
 						self.escapeCodeCSI(matches[2], matches[1] ? matches[1].split(';') : []);
 					} else if (matches = self.buffer.match(/^\u001B\](.*)(?:\u0007|\u001B\\)/)) {
