@@ -154,6 +154,11 @@
 					'D': { x: -arg }
 				};
 				self.lowLevelMoveCursor(directions[command]);
+			} else if (command === 'G') {
+				var arg = parseInt(args[0] || '0', 10) || 0;
+				if (arg <   0) { arg =   0; }
+				if (arg > 500) { arg = 500; } // TODO: Use terminal max width
+				self.lowLevelSetCursor({ x: arg });
 			} else if (command === 'K') {
 				var arg = parseInt(args[0] || '0', 10) || 0;
 				if (arg === 1) {
