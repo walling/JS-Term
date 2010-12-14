@@ -71,6 +71,16 @@
 			}
 		};
 
+		self.emptyLineArray = function(maxSize) {
+			maxSize = maxSize || 512;
+
+			var array = [[self.cursor.attr, ' ']];
+			for (var i = 0; i < 9; i++) {
+				array = array.concat(array);
+			}
+			return array.slice(0, maxSize);
+		};
+
 /*
 		self.replaceInString = function(string, index, replacement) {
 			return string.substr(0, index) + replacement + string.substr(index + replacement.length);
@@ -161,18 +171,16 @@
 				self.lowLevelSetCursor({ x: arg });
 			} else if (command === 'K') {
 				var arg = parseInt(args[0] || '0', 10) || 0;
+				var line = self.grid[self.cursor.y];
 				if (arg === 1) {
-					if (window.console && window.JSON) {
-						console.log('Unimplemented argument for CSI "K": ' + arg);
-					}
-					//self.grid[self.cursor.y] = self.grid[self.cursor.y].slice(self.cursor.x + 1);
+					self.grid[self.cursor.y] = self.emptyLineArray(self.cursor.x + 1).concat(line.slice(self.cursor.x + 1));
 				} else if (arg === 2) {
 					self.grid[self.cursor.y] = [];
 				} else {
 					if (arg !== 0 && window.console && window.JSON) {
 						console.log('Unknown argument for CSI "K": ' + arg);
 					}
-					self.grid[self.cursor.y] = self.grid[self.cursor.y].slice(0, self.cursor.x);
+					self.grid[self.cursor.y] = line.slice(0, self.cursor.x);
 				}
 				self.dirtyLines[self.cursor.y] = true;
 			} else if (command === 'P') {
@@ -348,7 +356,7 @@
 		self.terminalInputElement.keydown(function(e) {
 			var shift = e.shiftKey;
 			var ctrl  = e.ctrlKey;
-			var meta  = e.metaKey;
+			var meta  = e.altKey;
 			var mods   = shift || ctrl || meta;
 			var onlyShift = shift && !( ctrl || meta);
 			var onlyCtrl  = ctrl  && !(shift || meta);
@@ -375,7 +383,7 @@
 				(self.oninput || noop)('\u001B[B');
 				e.preventDefault();
 				return false;
-			} else if (onlyCtrl && (e.keyCode === 65 || e.keyCode === 90)) { // Ctrl + A-Z
+			} else if (onlyCtrl && (e.keyCode >= 65 || e.keyCode <= 90)) { // Ctrl + A-Z
 				var ch = String.fromCharCode(e.keyCode - 64);
 				(self.oninput || noop)(ch);
 				e.preventDefault();
