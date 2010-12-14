@@ -281,7 +281,7 @@
 		inputElement = inputElement || window;
 
 		var noop = function() {};
-		//var $window = $(window);
+		var $window = $(window);
 
 		var self = {
 			term: termemul.LowLevelTerminal(),
@@ -350,25 +350,29 @@
 		};
 		self.theme(self.themes['Linux Terminal']);
 
-/*
-		function enableScrollSnapping() {
-			function snap() {
-				var lines  = $terminal.find('> *').size() || 1;
-				var height = $terminal.height();
-				var characterHeight = (height / lines) || 1;
-				var position = $window.scrollTop();
-				var snapPosition = Math.floor(Math.floor(position / characterHeight) * characterHeight);
-				if (position !== snapPosition) {
-					$window.scrollTop(snapPosition);
-				}
-				return false;
+		self.scrollSnap = function() {
+			var lines  = self.numberOfLines();
+			var height = self.height();
+			var characterHeight = (height / lines) || 1;
+			var position = $window.scrollTop();
+			var snapPosition = Math.floor(Math.floor(position / characterHeight) * characterHeight);
+			if (position !== snapPosition) {
+				$window.scrollTop(snapPosition);
 			}
-			$window.scroll(snap);
-			$window.resize(snap);
-			setTimeout(snap, 0);
+			return false;
 		};
-		enableScrollSnapping();
-*/
+
+		self.enableScrollSnapping = function() {
+			$window.scroll(self.scrollSnap);
+			$window.resize(self.scrollSnap);
+			setTimeout(self.scrollSnap, 0);
+		};
+		self.enableScrollSnapping();
+
+		self.scrollToBottom = function() {
+			$window.scrollTop(self.height());
+			self.scrollSnap();
+		};
 
 		self.startCursorBlinking = function() {
 			self.stopCursorBlinking();
@@ -391,6 +395,10 @@
 			return self.terminalElement.find('> *').size() || 1
 		};
 
+		self.height = function() {
+			return self.terminalElement.height();
+		};
+
 		self.ensureLineExists = function(lineNo) {
 			var missingLines = lineNo - self.numberOfLines() + 1;
 			if (missingLines > 0) {
@@ -408,6 +416,7 @@
 				self.ensureLineExists(lineNo);
 				self.terminalElement.find('> :eq(' + lineNo + ')').html(html);
 			});
+			self.scrollToBottom(); // Auto-scroll always on right now.
 			self.startCursorBlinking();
 		};
 
