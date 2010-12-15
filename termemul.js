@@ -431,7 +431,7 @@
 				(self.oninput || noop)('\u001B[B');
 				e.preventDefault();
 				return false;
-			} else if (onlyCtrl && (e.keyCode >= 65 || e.keyCode <= 90)) { // Ctrl + A-Z
+			} else if (onlyCtrl && e.keyCode >= 65 && e.keyCode <= 90) { // Ctrl + A-Z
 				var ch = String.fromCharCode(e.keyCode - 64);
 				(self.oninput || noop)(ch);
 				e.preventDefault();
