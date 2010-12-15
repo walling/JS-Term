@@ -190,9 +190,10 @@
 				var cols = (self.columns || noop)() || self.cursor.x + 1;
 				var rows = (self.rows || noop)() || 1;
 				var firstLine  = self.windowFirstLine();
-				var lastLine   = firstLine + rows - 1;
+				var lastLine   = Math.min(firstLine + rows, self.grid.length) - 1;
 				var cursorLine = self.cursor.y;
 				if (arg === 1) {
+					lastLine  = firstLine + rows - 1;
 					firstLine = cursorLine;
 				} else if (arg !== 2) {
 					lastLine = cursorLine;
