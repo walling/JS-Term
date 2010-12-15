@@ -189,13 +189,18 @@
 			} else if (command === 'J') {
 				var arg = parseInt(args[0] || '0', 10) || 0;
 				var cols = (self.columns || noop)() || self.cursor.x + 1;
+				var rows = (self.rows || noop)() || 1;
 				var firstLine  = self.windowFirstLine();
-				var lastLine   = firstLine + ((self.rows || noop)() || 1) - 1;
+				var lastLine   = firstLine + rows - 1;
 				var cursorLine = self.cursor.y;
 				if (arg === 1) {
 					firstLine = cursorLine;
 				} else if (arg !== 2) {
 					lastLine = cursorLine;
+				} else {
+					firstLine = lastLine;
+					lastLine  = firstLine + rows - 1;
+					self.lowLevelSetCursor({ y: firstLine });
 				}
 				var emptyLine = self.emptyLineArray(cols);
 				for (var y = firstLine; y <= lastLine; y++) {
