@@ -46,7 +46,11 @@ server.on('request', function(request, response) {
 		type = 'text/html; charset=utf-8';		
 	}
 	fs.readFile(filename, function(err, buffer) {
-		response.writeHead(200, { 'Content-Type': type });
+		//console.log(filename + ': ' + buffer.length + ' bytes');
+		response.writeHead(200, {
+			'Content-Length': buffer.length,
+			'Content-Type': type
+		});
 		response.end(buffer);
 	});
 });
