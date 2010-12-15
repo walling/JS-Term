@@ -441,39 +441,6 @@
 				(self.oninput || noop)(ch);
 				e.preventDefault();
 				return false;
-			} else if (mods && e.keyCode === 90) { // Panic debug button: Try to force stop a program
-				(self.oninput || noop)('\u001A');
-				(self.oninput || noop)('\u001A');
-				(self.oninput || noop)('\u001A');
-				(self.oninput || noop)('æ');
-				(self.oninput || noop)('\u0008\u0008');
-				(self.oninput || noop)('æ');
-				(self.oninput || noop)('\u0008\u0008');
-				(self.oninput || noop)('æ');
-				(self.oninput || noop)('\u0008\u0008');
-				(self.oninput || noop)('æ');
-				(self.oninput || noop)('\u0008\u0008');
-				(self.oninput || noop)('æ');
-				(self.oninput || noop)('\u0008\u0008');
-				(self.oninput || noop)('æ');
-				(self.oninput || noop)('\u0008\u0008');
-				(self.oninput || noop)('æ');
-				(self.oninput || noop)('\u0008\u0008');
-				(self.oninput || noop)('\r');
-				(self.oninput || noop)('reset\r');
-				(self.oninput || noop)('æ');
-				(self.oninput || noop)('\u0008\u0008');
-				(self.oninput || noop)('æ');
-				(self.oninput || noop)('\u0008\u0008');
-				(self.oninput || noop)('æ');
-				(self.oninput || noop)('\u0008\u0008');
-				(self.oninput || noop)('æ');
-				(self.oninput || noop)('\u0008\u0008');
-				(self.oninput || noop)('æ');
-				(self.oninput || noop)('\u0008\u0008');
-				(self.oninput || noop)('jobs\r');
-				e.preventDefault();
-				return false;
 			} else if (window.console) {
 				//console.log('Unhandled keydown ' + e.keyCode);
 			}
