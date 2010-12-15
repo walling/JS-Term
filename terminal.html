@@ -42,13 +42,22 @@
 
 				// Online terminal
 				var ws = new WebSocket('ws://' + location.host + location.pathname);
+				var keepalive = null;
 				ws.onopen = function() {
 					term.oninput = function(data) {
 						//console.log('send ' + JSON.stringify(data));
 						ws.send(data);
 					};
+
+					clearInterval(keepalive);
+					keepalive = setInterval(function() {
+						ws.send(''); // Connection keep-alive packet every 10 second.
+					}, 30000);
 				};
 				ws.onclose = function() {
+					clearInterval(keepalive);
+					keepalive = null;
+
 					term.oninput = null;
 					term.write('\r\n\n\u001B[0;1mCONNECTION CLOSED. \u001B[0m');
 				};

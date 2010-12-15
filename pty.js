@@ -111,6 +111,7 @@ server.on('upgrade', function(request, connection, head) {
 				b.push(data[i]);
 			}
 		}
+		if (!b.length) return;
 		try {
 			pty.stdin.write(new Buffer(b));
 		}
