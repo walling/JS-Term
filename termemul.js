@@ -414,6 +414,7 @@
 			var onlyShift = shift && !( ctrl || meta);
 			var onlyCtrl  = ctrl  && !(shift || meta);
 			var onlyMeta  = meta  && !(shift || ctrl);
+			var ctrlShift = ctrl  && shift && !meta;
 			//console.log('keydown... ' + e.keyCode, shift, ctrl, meta);
 			if (!mods && (e.keyCode === 8 || e.keyCode === 9 || e.keyCode === 27)) {
 				var ch = String.fromCharCode(e.keyCode);
@@ -439,6 +440,14 @@
 			} else if (onlyCtrl && e.keyCode >= 65 && e.keyCode <= 90) { // Ctrl + A-Z
 				var ch = String.fromCharCode(e.keyCode - 64);
 				(self.oninput || noop)(ch);
+				e.preventDefault();
+				return false;
+			} else if (ctrlShift && e.keyCode === 84) {
+				window.open(location.href);
+				e.preventDefault();
+				return false;
+			} else if (ctrlShift && e.keyCode === 87) {
+				window.close();
 				e.preventDefault();
 				return false;
 			} else if (window.console) {
