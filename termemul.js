@@ -73,6 +73,14 @@
 			}
 		};
 
+		self.ensureColumnExists = function(position) {
+			var line = self.grid[position.y];
+			self.dirtyLines[position.y] = true;
+			while (line.length <= position.x) {
+				line.push([self.cursor.attr, ' ']);
+			}
+		};
+
 		self.windowFirstLine = function() {
 			return Math.max(0, self.grid.length - (self.rows || noop)() || 1);
 		};
@@ -117,6 +125,7 @@
 			}
 			self.dirtyLines[self.cursor.y] = true;
 			self.ensureLineExists(self.cursor.y);
+			self.ensureColumnExists(self.cursor);
 		};
 
 		self.lowLevelMoveCursor = function(direction) {
@@ -141,6 +150,13 @@
 
 		self.lineFeed = function() {
 			self.lowLevelMoveCursor({ y: 1 });
+		};
+
+		self.nextTabStop = function() {
+			var position = self.cursor.x;
+			position = (position | 7) + 1; // 8 characters tab stop
+			self.lowLevelSetCursor({ x: position });
+			// TODO: Use dynamic tab stops and recognize CSI * g and ESC H.
 		};
 
 		self.reset = function() {
@@ -321,6 +337,8 @@
 					self.buffer = self.buffer.substr(1);
 					if (ch === '\b') {
 						self.backSpace();
+					} else if (ch === '\t') {
+						self.nextTabStop();
 					} else if (ch === '\r') {
 						self.carrigeReturn();
 					} else if (ch === '\n') {
