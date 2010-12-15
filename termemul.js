@@ -396,6 +396,7 @@
 
 		self.softReset = function() {
 			self.terminalElement.html('<div class="a0088"></div>');
+			(self.invalidateCachedNumberOfLines || noop)();
 		};
 		self.term.onreset = self.softReset;
 		self.softReset();
@@ -516,12 +517,14 @@
 		};
 		self.theme(self.themes['Linux Terminal']);
 
+		var cachedScrollTop = null;
 		self.scrollSnap = function() {
 			var characterHeight = self.characterHeight();
 			var position = $window.scrollTop();
 			var snapPosition = Math.floor(Math.floor(position / characterHeight) * characterHeight);
 			if (position !== snapPosition) {
 				$window.scrollTop(snapPosition);
+				cachedScrollTop = snapPosition;
 			}
 			return false;
 		};
@@ -538,10 +541,18 @@
 			if (firstLine < 0) {
 				firstLine = 0;
 			}
-			$window.scrollTop(firstLine * self.characterHeight());
+			var position = firstLine * self.characterHeight();
+			if (position !== cachedScrollTop) {
+				$window.scrollTop(position);
+				cachedScrollTop = position;
+			}
 			return false;
 		};
-		$window.resize(self.scrollToBottom);
+		$window.resize(function() {
+			self.invalidateCachedSize();
+			self.scrollToBottom();
+			return false;
+		});
 
 		self.startCursorBlinking = function() {
 			self.stopCursorBlinking();
@@ -560,24 +571,48 @@
 			self.cursorBlinkId = undefined;
 		};
 
+		var cachedNumberOfLines = null;
 		self.numberOfLines = function() {
-			return self.terminalElement.find('> *').size() || 1
+			if (!cachedNumberOfLines) {
+				cachedNumberOfLines = self.terminalElement.find('> *').size() || 1;
+			}
+			return cachedNumberOfLines;
 		};
 
+		self.invalidateCachedNumberOfLines = function() {
+			cachedNumberOfLines = null;
+			return false;
+		};
+
+		var cachedCharacterWidth = null;
 		self.characterWidth = function() {
-			var ch = self.terminalElement.find('> * > *');
-			return ch.innerWidth() || 1; // TODO: Is this really stable crossbrowser?
+			if (!cachedCharacterWidth) {
+				var ch = self.terminalElement.find('> * > *');
+				cachedCharacterWidth = ch.innerWidth() || 1; // TODO: Is this really stable crossbrowser?
+			}
+			return cachedCharacterWidth;
 		};
 
+		var cachedCharacterHeight = null;
 		self.characterHeight = function() {
-			var line = self.terminalElement.find('> *');
-			return line.innerHeight() || 1; // TODO: Is this really stable crossbrowser?
+			if (!cachedCharacterHeight) {
+				var line = self.terminalElement.find('> *');
+				cachedCharacterHeight = line.innerHeight() || 1; // TODO: Is this really stable crossbrowser?
+			}
+			return cachedCharacterHeight;
 
 			/* OLD WAY TO DO IT (is it slower?)
 			var lines  = self.numberOfLines();
 			var height = self.height();
 			return (height / lines) || 1;
 			*/
+		};
+
+		self.invalidateCachedCharacterSize = function() {
+			cachedCharacterWidth  = null;
+			cachedCharacterHeight = null;
+			self.invalidateCachedSize();
+			return false;
 		};
 
 		self.width = function() {
@@ -588,13 +623,21 @@
 			return self.terminalElement.innerHeight();
 		};
 
+		var cachedColumns = null;
 		self.columns = function() {
-			return Math.floor($window.width()  / self.characterWidth());
+			if (!cachedColumns) {
+				cachedColumns = Math.floor($window.width()  / self.characterWidth());
+			}
+			return cachedColumns;
 		};
 		self.term.columns = self.columns;
 
+		var cachedRows = null;
 		self.rows = function() {
-			return Math.floor($window.height() / self.characterHeight());
+			if (!cachedRows) {
+				cachedRows = Math.floor($window.height() / self.characterHeight());
+			}
+			return cachedRows;
 		};
 		self.term.rows = self.rows;
 
@@ -605,6 +648,12 @@
 			};
 		};
 
+		self.invalidateCachedSize = function() {
+			cachedColumns = null;
+			cachedRows = null;
+			return false;
+		};
+
 		self.ensureLineExists = function(lineNo) {
 			var missingLines = lineNo - self.numberOfLines() + 2;
 			if (missingLines > 0) {
@@ -613,6 +662,7 @@
 					html += '<div class="a0088"></div>';
 				}
 				self.terminalElement.append(html);
+				self.invalidateCachedNumberOfLines();
 			}
 		};
 
