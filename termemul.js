@@ -157,7 +157,7 @@
 			if (command === 'c') {
 				self.reset();
 			} else if (command === '(B') {
-				// Do not handle and do not report about it. `top` on Linux outputs it.
+				self.cursor.attr &= ~0x300; // <-- HACK SO `top` WORKS PROPERLY
 			} else if (window.console && window.JSON) {
 				console.log('Unhandled escape code ESC ' + JSON.stringify(command));
 				// Used by `less`: ESC =, ESC >
