@@ -179,8 +179,7 @@
 				self.lowLevelMoveCursor(directions[command]);
 			} else if (command === 'G') {
 				var arg = parseInt(args[0] || '0', 10) || 0;
-				if (arg <   0) { arg =   0; }
-				if (arg > 500) { arg = 500; } // TODO: Use terminal max width
+				if (arg < 0) { arg = 0; }
 				self.lowLevelSetCursor({ x: arg });
 			} else if (command === 'H' || command === 'f') {
 				var y = (parseInt(args[0] || '1', 10) || 1) - 1;
