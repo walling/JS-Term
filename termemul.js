@@ -10,7 +10,8 @@
 			cursorId: 'cursor',
 			onreset: null,
 			columns: null,
-			rows: null
+			rows: null,
+			bell: null
 		};
 
 		var noop = function() {};
@@ -335,7 +336,9 @@
 				} else {
 					var ch = self.buffer.substr(0, 1);
 					self.buffer = self.buffer.substr(1);
-					if (ch === '\b') {
+					if (ch === '\u0007') {
+						(self.bell || noop)();
+					} else if (ch === '\b') {
 						self.backSpace();
 					} else if (ch === '\t') {
 						self.nextTabStop();
@@ -415,6 +418,10 @@
 			cursorBlinkSpeed: 500,
 			_colors: null,
 			stylesheetId: 'terminal-css'
+		};
+
+		self.term.bell = function() {
+			document.getElementById('beep').play(3);
 		};
 
 		self.softReset = function() {

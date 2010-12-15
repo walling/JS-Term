@@ -40,6 +40,9 @@ server.on('request', function(request, response) {
 	} else if (request.url === '/favicon.ico') {
 		filename = './favicon.ico';
 		type = 'image/vnd.microsoft.icon';
+	} else if (request.url === '/flashbeep-general.swf') {
+		filename = './flashbeep-general.swf';
+		type = 'application/x-shockwave-flash';
 	}
 	if(!filename) {
 		filename = './terminal.html';
